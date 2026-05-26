@@ -21,7 +21,6 @@
 
         .container { max-width: 900px; margin: 0 auto; padding: 0 20px 40px; }
 
-        /* 输入卡片 */
         .input-card {
             background: #11111c;
             border: 1px solid #1e1e30;
@@ -50,9 +49,8 @@
         }
         .gen-btn:hover { opacity: 0.9; transform: scale(1.02); }
 
-        /* 字体选择 */
         .font-section { margin-bottom: 16px; }
-        .font-label { font-size: 12px; color: #4a5568; margin-bottom: 8px; }
+        .font-label { font-size: 12px; color: #4a5568; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 1px; }
         .font-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
@@ -66,10 +64,9 @@
             cursor: pointer; text-align: center;
             font-size: 12px; transition: 0.2s;
         }
-        .font-item:hover { border-color: #333; }
+        .font-item:hover { border-color: #333; color: #aaa; }
         .font-item.active { border-color: #22d3ee; color: #22d3ee; background: rgba(34,211,238,0.05); }
 
-        /* 设置 */
         .settings-row { display: flex; gap: 16px; flex-wrap: wrap; align-items: center; }
         .setting-item { display: flex; align-items: center; gap: 8px; }
         .setting-lbl { font-size: 12px; color: #4a5568; }
@@ -78,8 +75,8 @@
             border: 1px solid #1e1e30; color: #8892a8;
             border-radius: 6px; font-size: 12px; outline: none;
         }
+        .setting-select:focus { border-color: #22d3ee; }
 
-        /* 预览 */
         .preview-card {
             background: #11111c;
             border: 1px solid #1e1e30;
@@ -111,12 +108,10 @@
             white-space: pre;
             color: #22d3ee;
             min-height: 100px;
-            tab-size: 4;
         }
-        .ascii-output.colored { color: unset; }
 
-        /* 颜色主题 */
-        .theme-row { display: flex; gap: 6px; flex-wrap: wrap; }
+        .theme-section { margin-bottom: 20px; }
+        .theme-row { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 8px; }
         .theme-btn {
             padding: 5px 14px; background: rgba(255,255,255,0.02);
             border: 1px solid #1e1e30; border-radius: 16px;
@@ -146,16 +141,52 @@
             margin-bottom: 14px;
         }
         .drop-zone:hover { border-color: #333; color: #556; }
-        .drop-zone.over { border-color: #22d3ee; background: rgba(34,211,238,0.03); }
+        .drop-zone.over { border-color: #22d3ee; background: rgba(34,211,238,0.03); color: #22d3ee; }
+        .img-controls { display: flex; gap: 10px; margin-bottom: 14px; align-items: center; flex-wrap: wrap; }
+        .img-slider-wrap { display: flex; align-items: center; gap: 6px; }
+        .img-slider-wrap label { font-size: 12px; color: #4a5568; }
+        .img-slider {
+            width: 100px; -webkit-appearance: none;
+            height: 4px; background: #1e1e30; border-radius: 2px; outline: none;
+        }
+        .img-slider::-webkit-slider-thumb {
+            -webkit-appearance: none; width: 14px; height: 14px;
+            border-radius: 50%; background: #22d3ee; cursor: pointer;
+        }
+        .img-val { font-size: 11px; color: #667; min-width: 30px; }
         .img-ascii-output {
             background: #08080f; border-radius: 14px;
-            padding: 10px; overflow: auto; max-height: 400px;
+            padding: 10px; overflow: auto; max-height: 500px;
             font-family: 'Courier New', monospace;
-            font-size: 6px; line-height: 7px;
+            font-size: 5px; line-height: 6px; letter-spacing: 1px;
             white-space: pre; color: #22d3ee;
             display: none;
         }
         .img-ascii-output.show { display: block; }
+
+        /* 历史记录 */
+        .history-card {
+            background: #11111c;
+            border: 1px solid #1e1e30;
+            border-radius: 20px;
+            padding: 24px;
+        }
+        .history-card h3 { font-size: 16px; font-weight: 600; margin-bottom: 14px; display: flex; justify-content: space-between; align-items: center; }
+        .history-list { display: flex; flex-direction: column; gap: 6px; max-height: 240px; overflow-y: auto; }
+        .hist-item {
+            padding: 10px 14px;
+            background: rgba(255,255,255,0.02);
+            border: 1px solid #1e1e30;
+            border-radius: 10px;
+            cursor: pointer; transition: 0.2s;
+            display: flex; justify-content: space-between; align-items: center;
+        }
+        .hist-item:hover { border-color: #333; }
+        .hist-text { font-size: 13px; font-weight: 600; }
+        .hist-font { font-size: 11px; color: #4a5568; }
+        .hist-empty { text-align: center; color: #1e1e30; padding: 20px; font-size: 14px; }
+        .clear-hist { background: none; border: none; color: #445; cursor: pointer; font-size: 12px; transition: 0.2s; }
+        .clear-hist:hover { color: #f87171; }
 
         .toast {
             position: fixed; bottom: 30px; left: 50%;
@@ -170,7 +201,8 @@
 
         @media (max-width: 600px) {
             .input-row { flex-direction: column; }
-            .ascii-output { font-size: 8px; }
+            .ascii-output { font-size: 7px; line-height: 1.1; }
+            .font-grid { grid-template-columns: repeat(3, 1fr); }
         }
     </style>
 </head>
@@ -184,24 +216,577 @@
         <!-- 文字输入 -->
         <div class="input-card">
             <div class="input-row">
-                <input class="text-input" id="textInput" value="HELLO" placeholder="输入文字..." oninput="generateText()">
+                <input class="text-input" id="textInput" value="HELLO" placeholder="输入英文字母..." oninput="generateText()">
                 <button class="gen-btn" onclick="generateText()">🎨 生成</button>
             </div>
 
             <div class="font-section">
-                <div class="font-label">🔤 字体选择</div>
+                <div class="font-label">🔤 字体风格</div>
                 <div class="font-grid" id="fontGrid"></div>
             </div>
 
             <div class="settings-row">
                 <div class="setting-item">
-                    <span class="setting-lbl">字符集:</span>
-                    <select class="setting-select" id="charSet" onchange="generateText()">
-                        <option value="default">默认 (█▓░)</option>
-                        <option value="hash">哈希 (#=-.)</option>
-                        <option value="stars">星号 (*+-.)</option>
-                        <option value="blocks">方块 (■□▪)</option>
-                        <option value="dots">点阵 (●◉○)</option>
+                    <span class="setting-lbl">水平间距:</span>
+                    <select class="setting-select" id="hSpacing" onchange="generateText()">
+                        <option value="0">紧凑</option>
+                        <option value="1" selected>正常</option>
+                        <option value="2">宽松</option>
+                        <option value="3">超宽</option>
                     </select>
                 </div>
-                <div class="setting-
+                <div class="setting-item">
+                    <span class="setting-lbl">填充字符:</span>
+                    <select class="setting-select" id="fillChar" onchange="generateText()">
+                        <option value="█">█ 实心</option>
+                        <option value="#"># 井号</option>
+                        <option value="*">* 星号</option>
+                        <option value="@">@ 圈A</option>
+                        <option value="■">■ 方块</option>
+                        <option value="●">● 圆点</option>
+                        <option value="0">0 数字</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <!-- 颜色主题 -->
+        <div class="preview-card">
+            <div class="preview-header">
+                <div class="preview-title">🎯 ASCII 艺术输出</div>
+                <div class="preview-btns">
+                    <button class="pv-btn" onclick="copyAscii()">📋 复制</button>
+                    <button class="pv-btn" onclick="downloadTxt()">💾 下载 .txt</button>
+                    <button class="pv-btn" onclick="downloadHTML()">🌐 下载 HTML</button>
+                </div>
+            </div>
+            <div class="theme-section">
+                <div class="font-label">🎨 颜色主题</div>
+                <div class="theme-row" id="themeRow"></div>
+            </div>
+            <div class="ascii-output" id="asciiOutput">输入文字后生成 ASCII 艺术...</div>
+        </div>
+
+        <!-- 图片转 ASCII -->
+        <div class="img-card">
+            <h3>🖼 图片转 ASCII 字符画</h3>
+            <div class="drop-zone" id="dropZone" onclick="document.getElementById('fileInput').click()">
+                📁 点击上传或拖拽图片到此处
+                <br><span style="font-size:11px;color:#222;">(支持 JPG / PNG / GIF)</span>
+            </div>
+            <input type="file" id="fileInput" accept="image/*" style="display:none;" onchange="processImage(this.files[0])">
+            <div class="img-controls" id="imgControls" style="display:none;">
+                <div class="img-slider-wrap">
+                    <label>宽度:</label>
+                    <input type="range" class="img-slider" id="imgWidth" min="40" max="200" value="100" oninput="document.getElementById('imgWidthVal').textContent=this.value;reprocessImage();">
+                    <span class="img-val" id="imgWidthVal">100</span>
+                </div>
+                <div class="img-slider-wrap">
+                    <label>对比度:</label>
+                    <input type="range" class="img-slider" id="imgContrast" min="0" max="200" value="100" oninput="document.getElementById('imgContrastVal').textContent=this.value+'%';reprocessImage();">
+                    <span class="img-val" id="imgContrastVal">100%</span>
+                </div>
+                <div class="setting-item">
+                    <span class="setting-lbl">字符集:</span>
+                    <select class="setting-select" id="imgCharset" onchange="reprocessImage()">
+                        <option value="standard">标准</option>
+                        <option value="detailed">精细</option>
+                        <option value="blocks">方块</option>
+                        <option value="simple">简约</option>
+                    </select>
+                </div>
+                <button class="pv-btn" onclick="copyImgAscii()">📋 复制</button>
+            </div>
+            <div class="img-ascii-output" id="imgAsciiOutput"></div>
+        </div>
+
+        <!-- 历史 -->
+        <div class="history-card">
+            <h3>
+                📜 生成历史
+                <button class="clear-hist" onclick="clearHistory()">🗑 清空</button>
+            </h3>
+            <div class="history-list" id="historyList">
+                <div class="hist-empty">暂无历史记录</div>
+            </div>
+        </div>
+    </div>
+
+    <canvas id="imgCanvas"></canvas>
+    <div class="toast" id="toast"></div>
+
+    <script>
+        // ========== ASCII 字体定义 ==========
+        // 每个字母由 5 行表示，每行是一串 0/1 字符
+        const FONTS = {
+            'block': {
+                name: 'Block',
+                height: 5,
+                chars: {
+                    'A': ['01110','10001','11111','10001','10001'],
+                    'B': ['11110','10001','11110','10001','11110'],
+                    'C': ['01111','10000','10000','10000','01111'],
+                    'D': ['11110','10001','10001','10001','11110'],
+                    'E': ['11111','10000','11110','10000','11111'],
+                    'F': ['11111','10000','11110','10000','10000'],
+                    'G': ['01111','10000','10011','10001','01111'],
+                    'H': ['10001','10001','11111','10001','10001'],
+                    'I': ['11111','00100','00100','00100','11111'],
+                    'J': ['11111','00010','00010','10010','01100'],
+                    'K': ['10001','10010','11100','10010','10001'],
+                    'L': ['10000','10000','10000','10000','11111'],
+                    'M': ['10001','11011','10101','10001','10001'],
+                    'N': ['10001','11001','10101','10011','10001'],
+                    'O': ['01110','10001','10001','10001','01110'],
+                    'P': ['11110','10001','11110','10000','10000'],
+                    'Q': ['01110','10001','10101','10010','01101'],
+                    'R': ['11110','10001','11110','10010','10001'],
+                    'S': ['01111','10000','01110','00001','11110'],
+                    'T': ['11111','00100','00100','00100','00100'],
+                    'U': ['10001','10001','10001','10001','01110'],
+                    'V': ['10001','10001','10001','01010','00100'],
+                    'W': ['10001','10001','10101','11011','10001'],
+                    'X': ['10001','01010','00100','01010','10001'],
+                    'Y': ['10001','01010','00100','00100','00100'],
+                    'Z': ['11111','00010','00100','01000','11111'],
+                    '0': ['01110','10011','10101','11001','01110'],
+                    '1': ['00100','01100','00100','00100','11111'],
+                    '2': ['01110','10001','00110','01000','11111'],
+                    '3': ['11110','00001','01110','00001','11110'],
+                    '4': ['10001','10001','11111','00001','00001'],
+                    '5': ['11111','10000','11110','00001','11110'],
+                    '6': ['01110','10000','11110','10001','01110'],
+                    '7': ['11111','00001','00010','00100','01000'],
+                    '8': ['01110','10001','01110','10001','01110'],
+                    '9': ['01110','10001','01111','00001','01110'],
+                    ' ': ['00000','00000','00000','00000','00000'],
+                    '!': ['00100','00100','00100','00000','00100'],
+                    '.': ['00000','00000','00000','00000','00100'],
+                    '-': ['00000','00000','11111','00000','00000'],
+                    '?': ['01110','10001','00110','00000','00100'],
+                }
+            },
+            'slim': {
+                name: 'Slim',
+                height: 5,
+                chars: {
+                    'A': ['010','101','111','101','101'],
+                    'B': ['110','101','110','101','110'],
+                    'C': ['011','100','100','100','011'],
+                    'D': ['110','101','101','101','110'],
+                    'E': ['111','100','110','100','111'],
+                    'F': ['111','100','110','100','100'],
+                    'G': ['011','100','101','101','011'],
+                    'H': ['101','101','111','101','101'],
+                    'I': ['111','010','010','010','111'],
+                    'J': ['111','001','001','101','010'],
+                    'K': ['101','110','100','110','101'],
+                    'L': ['100','100','100','100','111'],
+                    'M': ['10001','11011','10101','10001','10001'],
+                    'N': ['101','111','111','111','101'],
+                    'O': ['010','101','101','101','010'],
+                    'P': ['110','101','110','100','100'],
+                    'Q': ['010','101','101','110','011'],
+                    'R': ['110','101','110','101','101'],
+                    'S': ['011','100','010','001','110'],
+                    'T': ['111','010','010','010','010'],
+                    'U': ['101','101','101','101','010'],
+                    'V': ['101','101','101','101','010'],
+                    'W': ['10001','10001','10101','11011','10001'],
+                    'X': ['101','101','010','101','101'],
+                    'Y': ['101','101','010','010','010'],
+                    'Z': ['111','001','010','100','111'],
+                    ' ': ['000','000','000','000','000'],
+                    '!': ['010','010','010','000','010'],
+                    '.': ['000','000','000','000','010'],
+                    '-': ['000','000','111','000','000'],
+                }
+            },
+            'banner': {
+                name: 'Banner',
+                height: 7,
+                chars: {
+                    'A': ['0001000','0010100','0100010','0111110','1000001','1000001','1000001'],
+                    'B': ['1111100','1000010','1000010','1111100','1000010','1000010','1111100'],
+                    'C': ['0111110','1000000','1000000','1000000','1000000','1000000','0111110'],
+                    'D': ['1111100','1000010','1000010','1000010','1000010','1000010','1111100'],
+                    'E': ['1111111','1000000','1000000','1111100','1000000','1000000','1111111'],
+                    'F': ['1111111','1000000','1000000','1111100','1000000','1000000','1000000'],
+                    'G': ['0111110','1000000','1000000','1001110','1000010','1000010','0111110'],
+                    'H': ['1000001','1000001','1000001','1111111','1000001','1000001','1000001'],
+                    'I': ['1111111','0001000','0001000','0001000','0001000','0001000','1111111'],
+                    'J': ['0111111','0000100','0000100','0000100','0000100','1000100','0111000'],
+                    'K': ['1000010','1000100','1001000','1110000','1001000','1000100','1000010'],
+                    'L': ['1000000','1000000','1000000','1000000','1000000','1000000','1111111'],
+                    'M': ['1000001','1100011','1010101','1001001','1000001','1000001','1000001'],
+                    'N': ['1000001','1100001','1010001','1001001','1000101','1000011','1000001'],
+                    'O': ['0111110','1000001','1000001','1000001','1000001','1000001','0111110'],
+                    'P': ['1111110','1000001','1000001','1111110','1000000','1000000','1000000'],
+                    'Q': ['0111110','1000001','1000001','1000001','1000101','1000010','0111101'],
+                    'R': ['1111110','1000001','1000001','1111110','1000100','1000010','1000001'],
+                    'S': ['0111111','1000000','1000000','0111110','0000001','0000001','1111110'],
+                    'T': ['1111111','0001000','0001000','0001000','0001000','0001000','0001000'],
+                    'U': ['1000001','1000001','1000001','1000001','1000001','1000001','0111110'],
+                    'V': ['1000001','1000001','0100010','0100010','0010100','0010100','0001000'],
+                    'W': ['1000001','1000001','1000001','1001001','1010101','1100011','1000001'],
+                    'X': ['1000001','0100010','0010100','0001000','0010100','0100010','1000001'],
+                    'Y': ['1000001','0100010','0010100','0001000','0001000','0001000','0001000'],
+                    'Z': ['1111111','0000010','0000100','0001000','0010000','0100000','1111111'],
+                    ' ': ['0000000','0000000','0000000','0000000','0000000','0000000','0000000'],
+                    '!': ['0001000','0001000','0001000','0001000','0001000','0000000','0001000'],
+                    '.': ['0000000','0000000','0000000','0000000','0000000','0000000','0001000'],
+                    '-': ['0000000','0000000','0000000','0111110','0000000','0000000','0000000'],
+                }
+            },
+            'big': {
+                name: 'Big',
+                height: 6,
+                chars: {
+                    'A': ['001100','010010','100001','111111','100001','100001'],
+                    'B': ['111110','100001','111110','100001','100001','111110'],
+                    'C': ['011111','100000','100000','100000','100000','011111'],
+                    'D': ['111100','100010','100001','100001','100010','111100'],
+                    'E': ['111111','100000','111100','100000','100000','111111'],
+                    'F': ['111111','100000','111100','100000','100000','100000'],
+                    'G': ['011110','100000','100110','100001','100001','011110'],
+                    'H': ['100001','100001','111111','100001','100001','100001'],
+                    'I': ['111111','001100','001100','001100','001100','111111'],
+                    'J': ['001111','000010','000010','000010','100010','011100'],
+                    'K': ['100010','100100','111000','100100','100010','100001'],
+                    'L': ['100000','100000','100000','100000','100000','111111'],
+                    'M': ['100001','110011','101101','100001','100001','100001'],
+                    'N': ['100001','110001','101001','100101','100011','100001'],
+                    'O': ['011110','100001','100001','100001','100001','011110'],
+                    'P': ['111110','100001','100001','111110','100000','100000'],
+                    'Q': ['011110','100001','100001','100101','100010','011101'],
+                    'R': ['111110','100001','100001','111110','100010','100001'],
+                    'S': ['011111','100000','011110','000001','000001','111110'],
+                    'T': ['111111','001100','001100','001100','001100','001100'],
+                    'U': ['100001','100001','100001','100001','100001','011110'],
+                    'V': ['100001','100001','010010','010010','001100','001100'],
+                    'W': ['100001','100001','100001','101101','110011','100001'],
+                    'X': ['100001','010010','001100','001100','010010','100001'],
+                    'Y': ['100001','010010','001100','001100','001100','001100'],
+                    'Z': ['111111','000010','000100','001000','010000','111111'],
+                    ' ': ['000000','000000','000000','000000','000000','000000'],
+                    '!': ['001100','001100','001100','001100','000000','001100'],
+                    '.': ['000000','000000','000000','000000','000000','001100'],
+                    '-': ['000000','000000','111111','000000','000000','000000'],
+                }
+            },
+            'shadow': {
+                name: 'Shadow',
+                height: 5,
+                chars: {
+                    'A': ['01110','10001','11111','10001','10001'],
+                    'B': ['11110','10001','11110','10001','11110'],
+                    'C': ['01111','10000','10000','10000','01111'],
+                    'D': ['11110','10001','10001','10001','11110'],
+                    'E': ['11111','10000','11110','10000','11111'],
+                    'F': ['11111','10000','11110','10000','10000'],
+                    'G': ['01111','10000','10011','10001','01111'],
+                    'H': ['10001','10001','11111','10001','10001'],
+                    'I': ['11111','00100','00100','00100','11111'],
+                    'J': ['11111','00010','00010','10010','01100'],
+                    'K': ['10001','10010','11100','10010','10001'],
+                    'L': ['10000','10000','10000','10000','11111'],
+                    'M': ['10001','11011','10101','10001','10001'],
+                    'N': ['10001','11001','10101','10011','10001'],
+                    'O': ['01110','10001','10001','10001','01110'],
+                    'P': ['11110','10001','11110','10000','10000'],
+                    'Q': ['01110','10001','10101','10010','01101'],
+                    'R': ['11110','10001','11110','10010','10001'],
+                    'S': ['01111','10000','01110','00001','11110'],
+                    'T': ['11111','00100','00100','00100','00100'],
+                    'U': ['10001','10001','10001','10001','01110'],
+                    'V': ['10001','10001','10001','01010','00100'],
+                    'W': ['10001','10001','10101','11011','10001'],
+                    'X': ['10001','01010','00100','01010','10001'],
+                    'Y': ['10001','01010','00100','00100','00100'],
+                    'Z': ['11111','00010','00100','01000','11111'],
+                    ' ': ['00000','00000','00000','00000','00000'],
+                    '!': ['00100','00100','00100','00000','00100'],
+                    '.': ['00000','00000','00000','00000','00100'],
+                    '-': ['00000','00000','11111','00000','00000'],
+                }
+            },
+        };
+
+        const COLOR_THEMES = [
+            { name: '青色', color: '#22d3ee' },
+            { name: '紫色', color: '#a78bfa' },
+            { name: '绿色', color: '#10b981' },
+            { name: '橙色', color: '#f97316' },
+            { name: '红色', color: '#ef4444' },
+            { name: '粉色', color: '#ec4899' },
+            { name: '金色', color: '#fbbf24' },
+            { name: '白色', color: '#e5e7eb' },
+            { name: '彩虹', color: 'rainbow' },
+        ];
+
+        let currentFont = 'block';
+        let currentTheme = '#22d3ee';
+        let history = JSON.parse(localStorage.getItem('asciicraft_history') || '[]');
+        let uploadedImage = null;
+
+        // ========== 初始化渲染 ==========
+        function renderFontGrid() {
+            document.getElementById('fontGrid').innerHTML = Object.entries(FONTS).map(([key, font]) =>
+                `<div class="font-item ${currentFont === key ? 'active' : ''}" onclick="setFont('${key}')">${font.name}</div>`
+            ).join('');
+        }
+
+        function renderThemes() {
+            document.getElementById('themeRow').innerHTML = COLOR_THEMES.map(t =>
+                `<button class="theme-btn ${currentTheme === t.color ? 'active' : ''}" onclick="setTheme('${t.color}')" style="${t.color !== 'rainbow' ? 'border-color:'+t.color+'40;' : ''}">${t.name}</button>`
+            ).join('');
+        }
+
+        function setFont(f) {
+            currentFont = f;
+            renderFontGrid();
+            generateText();
+        }
+
+        function setTheme(color) {
+            currentTheme = color;
+            renderThemes();
+            applyTheme();
+        }
+
+        function applyTheme() {
+            const output = document.getElementById('asciiOutput');
+            if (currentTheme === 'rainbow') {
+                const text = output.textContent;
+                const lines = text.split('\n');
+                const colors = ['#ef4444','#f97316','#fbbf24','#22c55e','#3b82f6','#8b5cf6','#ec4899'];
+                let html = '';
+                lines.forEach((line, li) => {
+                    const c = colors[li % colors.length];
+                    html += `<span style="color:${c}">${escHtml(line)}</span>\n`;
+                });
+                output.innerHTML = html;
+            } else {
+                output.style.color = currentTheme;
+            }
+        }
+
+        // ========== 文字生成 ==========
+        function generateText() {
+            const text = document.getElementById('textInput').value.toUpperCase();
+            const font = FONTS[currentFont];
+            const fillChar = document.getElementById('fillChar').value;
+            const spacing = parseInt(document.getElementById('hSpacing').value);
+
+            if (!text) {
+                document.getElementById('asciiOutput').textContent = '输入文字后生成 ASCII 艺术...';
+                return;
+            }
+
+            const lines = [];
+            for (let row = 0; row < font.height; row++) {
+                let line = '';
+                for (let ci = 0; ci < text.length; ci++) {
+                    const ch = text[ci];
+                    const charDef = font.chars[ch] || font.chars[' '];
+                    if (charDef && charDef[row]) {
+                        for (let col = 0; col < charDef[row].length; col++) {
+                            line += charDef[row][col] === '1' ? fillChar : ' ';
+                        }
+                    }
+                    // 字间距
+                    line += ' '.repeat(spacing);
+                }
+                lines.push(line);
+            }
+
+            const result = lines.join('\n');
+            const output = document.getElementById('asciiOutput');
+            output.textContent = result;
+            applyTheme();
+
+            // 添加历史
+            addHistory(text, currentFont);
+        }
+
+        // ========== 图片转 ASCII ==========
+        const IMG_CHARSETS = {
+            standard: ' .:-=+*#%@',
+            detailed: ' .\'`^",:;Il!i><~+_-?][}{1)(|\\/tfjrxnuvczXYUJCLQ0OZmwqpdbkhao*#MW&8%B@$',
+            blocks: ' ░▒▓█',
+            simple: ' .*#@',
+        };
+
+        const dropZone = document.getElementById('dropZone');
+        dropZone.addEventListener('dragover', (e) => { e.preventDefault(); dropZone.classList.add('over'); });
+        dropZone.addEventListener('dragleave', () => { dropZone.classList.remove('over'); });
+        dropZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            dropZone.classList.remove('over');
+            const file = e.dataTransfer.files[0];
+            if (file && file.type.startsWith('image/')) processImage(file);
+        });
+
+        function processImage(file) {
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const img = new Image();
+                img.onload = () => {
+                    uploadedImage = img;
+                    document.getElementById('imgControls').style.display = 'flex';
+                    dropZone.innerHTML = `✅ 已加载: ${file.name} (${img.width}×${img.height})`;
+                    convertImageToAscii(img);
+                };
+                img.src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function reprocessImage() {
+            if (uploadedImage) convertImageToAscii(uploadedImage);
+        }
+
+        function convertImageToAscii(img) {
+            const canvas = document.getElementById('imgCanvas');
+            const ctx = canvas.getContext('2d');
+            const targetWidth = parseInt(document.getElementById('imgWidth').value);
+            const aspectRatio = img.height / img.width;
+            const targetHeight = Math.floor(targetWidth * aspectRatio * 0.5); // 字符高度约为宽度2倍
+
+            canvas.width = targetWidth;
+            canvas.height = targetHeight;
+
+            // 对比度
+            const contrast = parseInt(document.getElementById('imgContrast').value);
+            ctx.filter = `contrast(${contrast}%)`;
+            ctx.drawImage(img, 0, 0, targetWidth, targetHeight);
+
+            const imageData = ctx.getImageData(0, 0, targetWidth, targetHeight);
+            const pixels = imageData.data;
+            const charset = IMG_CHARSETS[document.getElementById('imgCharset').value];
+
+            let ascii = '';
+            for (let y = 0; y < targetHeight; y++) {
+                for (let x = 0; x < targetWidth; x++) {
+                    const idx = (y * targetWidth + x) * 4;
+                    const r = pixels[idx];
+                    const g = pixels[idx + 1];
+                    const b = pixels[idx + 2];
+                    const brightness = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
+                    const charIdx = Math.floor(brightness * (charset.length - 1));
+                    ascii += charset[charIdx];
+                }
+                ascii += '\n';
+            }
+
+            const output = document.getElementById('imgAsciiOutput');
+            output.textContent = ascii;
+            output.classList.add('show');
+            output.style.color = currentTheme === 'rainbow' ? '#22d3ee' : currentTheme;
+            showToast(`🖼 生成完成: ${targetWidth}×${targetHeight} 字符`);
+        }
+
+        function copyImgAscii() {
+            const text = document.getElementById('imgAsciiOutput').textContent;
+            navigator.clipboard.writeText(text).then(() => showToast('📋 字符画已复制'));
+        }
+
+        // ========== 历史记录 ==========
+        function addHistory(text, font) {
+            const exists = history.find(h => h.text === text && h.font === font);
+            if (exists) return;
+            history.unshift({ text, font, time: Date.now() });
+            if (history.length > 20) history.pop();
+            localStorage.setItem('asciicraft_history', JSON.stringify(history));
+            renderHistory();
+        }
+
+        function renderHistory() {
+            const list = document.getElementById('historyList');
+            if (history.length === 0) {
+                list.innerHTML = '<div class="hist-empty">暂无历史记录</div>';
+                return;
+            }
+            list.innerHTML = history.slice(0, 10).map((h, i) => `
+                <div class="hist-item" onclick="loadHistory(${i})">
+                    <div>
+                        <span class="hist-text">${escHtml(h.text)}</span>
+                        <span class="hist-font"> · ${FONTS[h.font]?.name || h.font}</span>
+                    </div>
+                    <span style="font-size:11px;color:#334;">${timeAgo(h.time)}</span>
+                </div>
+            `).join('');
+        }
+
+        function loadHistory(i) {
+            const h = history[i];
+            document.getElementById('textInput').value = h.text;
+            currentFont = h.font;
+            renderFontGrid();
+            generateText();
+            showToast(`📜 已加载: ${h.text}`);
+        }
+
+        function clearHistory() {
+            history = [];
+            localStorage.removeItem('asciicraft_history');
+            renderHistory();
+            showToast('🗑 历史已清空');
+        }
+
+        // ========== 导出 ==========
+        function copyAscii() {
+            const text = document.getElementById('asciiOutput').textContent;
+            navigator.clipboard.writeText(text).then(() => showToast('📋 ASCII 已复制'));
+        }
+
+        function downloadTxt() {
+            const text = document.getElementById('asciiOutput').textContent;
+            const blob = new Blob([text], { type: 'text/plain' });
+            const a = document.createElement('a');
+            a.download = 'ascii-art.txt';
+            a.href = URL.createObjectURL(blob);
+            a.click();
+            showToast('💾 TXT 已下载');
+        }
+
+        function downloadHTML() {
+            const text = document.getElementById('asciiOutput').textContent;
+            const color = currentTheme === 'rainbow' ? '#22d3ee' : currentTheme;
+            const html = `<!DOCTYPE html>
+<html><head><meta charset="UTF-8"><title>ASCII Art</title>
+<style>body{background:#0a0a12;display:flex;align-items:center;justify-content:center;min-height:100vh;margin:0;}
+pre{font-family:'Courier New',monospace;font-size:14px;line-height:1.2;color:${color};}</style>
+</head><body><pre>${escHtml(text)}</pre></body></html>`;
+            const blob = new Blob([html], { type: 'text/html' });
+            const a = document.createElement('a');
+            a.download = 'ascii-art.html';
+            a.href = URL.createObjectURL(blob);
+            a.click();
+            showToast('🌐 HTML 已下载');
+        }
+
+        // ========== 工具 ==========
+        function escHtml(s) { return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+        function timeAgo(ts) {
+            const diff = Date.now() - ts;
+            if (diff < 60000) return '刚刚';
+            if (diff < 3600000) return Math.floor(diff/60000) + '分钟前';
+            if (diff < 86400000) return Math.floor(diff/3600000) + '小时前';
+            return Math.floor(diff/86400000) + '天前';
+        }
+        function showToast(msg) {
+            const t = document.getElementById('toast');
+            t.textContent = msg; t.classList.add('show');
+            setTimeout(() => t.classList.remove('show'), 2200);
+        }
+
+        // ========== 初始化 ==========
+        renderFontGrid();
+        renderThemes();
+        renderHistory();
+        generateText();
+    </script>
+</body>
+</html>
