@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AsciiCraft - ASCII 艺术文字生成器</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', 'Microsoft YaHei', sans-serif;
+            background: #0a0a12;
+            color: #c8cdd4;
+            min-height: 100vh;
+        }
+        header {
+            text-align: center; padding: 36px 20px 16px;
+        }
+        header h1 { font-size: 32px; font-weight: 800; }
+        header h1 span { background: linear-gradient(135deg, #22d3ee, #a78bfa); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        header p { color: #4a5568; font-size: 14px; margin-top: 4px; }
+
+        .container { max-width: 900px; margin: 0 auto; padding: 0 20px 40px; }
+
+        /* 输入卡片 */
+        .input-card {
+            background: #11111c;
+            border: 1px solid #1e1e30;
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 20px;
+        }
+        .input-row { display: flex; gap: 12px; margin-bottom: 16px; }
+        .text-input {
+            flex: 1; padding: 14px 20px;
+            background: rgba(255,255,255,0.03);
+            border: 1px solid #1e1e30;
+            color: #f0f4ff;
+            border-radius: 14px;
+            font-size: 20px; font-weight: 700;
+            outline: none;
+        }
+        .text-input:focus { border-color: #22d3ee; }
+        .text-input::placeholder { color: #1e1e30; }
+        .gen-btn {
+            padding: 14px 28px;
+            background: linear-gradient(135deg, #22d3ee, #a78bfa);
+            border: none; color: #000; font-weight: 700;
+            border-radius: 14px; cursor: pointer;
+            font-size: 16px; transition: 0.2s;
+        }
+        .gen-btn:hover { opacity: 0.9; transform: scale(1.02); }
+
+        /* 字体选择 */
+        .font-section { margin-bottom: 16px; }
+        .font-label { font-size: 12px; color: #4a5568; margin-bottom: 8px; }
+        .font-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+            gap: 6px;
+        }
+        .font-item {
+            padding: 10px 14px;
+            background: rgba(255,255,255,0.02);
+            border: 1px solid #1e1e30;
+            border-radius: 10px;
+            cursor: pointer; text-align: center;
+            font-size: 12px; transition: 0.2s;
+        }
+        .font-item:hover { border-color: #333; }
+        .font-item.active { border-color: #22d3ee; color: #22d3ee; background: rgba(34,211,238,0.05); }
+
+        /* 设置 */
+        .settings-row { display: flex; gap: 16px; flex-wrap: wrap; align-items: center; }
+        .setting-item { display: flex; align-items: center; gap: 8px; }
+        .setting-lbl { font-size: 12px; color: #4a5568; }
+        .setting-select {
+            padding: 6px 12px; background: #0d0d18;
+            border: 1px solid #1e1e30; color: #8892a8;
+            border-radius: 6px; font-size: 12px; outline: none;
+        }
+
+        /* 预览 */
+        .preview-card {
+            background: #11111c;
+            border: 1px solid #1e1e30;
+            border-radius: 20px;
+            padding: 24px;
+            margin-bottom: 20px;
+            position: relative;
+        }
+        .preview-header {
+            display: flex; justify-content: space-between; align-items: center;
+            margin-bottom: 14px;
+        }
+        .preview-title { font-size: 14px; font-weight: 600; display: flex; align-items: center; gap: 6px; }
+        .preview-btns { display: flex; gap: 4px; }
+        .pv-btn {
+            padding: 6px 14px; background: rgba(255,255,255,0.03);
+            border: 1px solid #1e1e30; color: #667;
+            border-radius: 8px; cursor: pointer; font-size: 12px; transition: 0.2s;
+        }
+        .pv-btn:hover { color: #aaa; border-color: #333; }
+        .ascii-output {
+            background: #08080f;
+            border-radius: 14px;
+            padding: 20px;
+            overflow-x: auto;
+            font-family: 'Fira Code', 'Consolas', 'Courier New', monospace;
+            font-size: 12px;
+            line-height: 1.2;
+            white-space: pre;
+            color: #22d3ee;
+            min-height: 100px;
+            tab-size: 4;
+        }
+        .ascii-output.colored { color: unset; }
+
+        /* 颜色主题 */
+        .theme-row { display: flex; gap: 6px; flex-wrap: wrap; }
+        .theme-btn {
+            padding: 5px 14px; background: rgba(255,255,255,0.02);
+            border: 1px solid #1e1e30; border-radius: 16px;
+            cursor: pointer; font-size: 11px; color: #556; transition: 0.2s;
+        }
+        .theme-btn:hover { border-color: #333; color: #aaa; }
+        .theme-btn.active { border-color: #22d3ee; color: #22d3ee; }
+
+        /* 图像转 ASCII */
+        .img-card {
+            background: #11111c;
+            border: 1px solid #1e1e30;
+            border-radius: 20px;
+            padding: 24px;
+            margin-bottom: 20px;
+        }
+        .img-card h3 { font-size: 16px; font-weight: 600; margin-bottom: 14px; display: flex; align-items: center; gap: 6px; }
+        .drop-zone {
+            border: 2px dashed #1e1e30;
+            border-radius: 14px;
+            padding: 40px;
+            text-align: center;
+            cursor: pointer;
+            transition: 0.2s;
+            color: #334;
+            font-size: 14px;
+            margin-bottom: 14px;
+        }
+        .drop-zone:hover { border-color: #333; color: #556; }
+        .drop-zone.over { border-color: #22d3ee; background: rgba(34,211,238,0.03); }
+        .img-ascii-output {
+            background: #08080f; border-radius: 14px;
+            padding: 10px; overflow: auto; max-height: 400px;
+            font-family: 'Courier New', monospace;
+            font-size: 6px; line-height: 7px;
+            white-space: pre; color: #22d3ee;
+            display: none;
+        }
+        .img-ascii-output.show { display: block; }
+
+        .toast {
+            position: fixed; bottom: 30px; left: 50%;
+            transform: translateX(-50%) translateY(20px);
+            background: rgba(17,17,28,0.95); border: 1px solid #1e1e30;
+            color: white; padding: 10px 24px; border-radius: 12px;
+            font-size: 13px; opacity: 0; transition: 0.3s; z-index: 200;
+        }
+        .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+        canvas { display: none; }
+
+        @media (max-width: 600px) {
+            .input-row { flex-direction: column; }
+            .ascii-output { font-size: 8px; }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>✨ Ascii<span>Craft</span></h1>
+        <p>ASCII 艺术文字 & 图片转字符画生成器</p>
+    </header>
+
+    <div class="container">
+        <!-- 文字输入 -->
+        <div class="input-card">
+            <div class="input-row">
+                <input class="text-input" id="textInput" value="HELLO" placeholder="输入文字..." oninput="generateText()">
+                <button class="gen-btn" onclick="generateText()">🎨 生成</button>
+            </div>
+
+            <div class="font-section">
+                <div class="font-label">🔤 字体选择</div>
+                <div class="font-grid" id="fontGrid"></div>
+            </div>
+
+            <div class="settings-row">
+                <div class="setting-item">
+                    <span class="setting-lbl">字符集:</span>
+                    <select class="setting-select" id="charSet" onchange="generateText()">
+                        <option value="default">默认 (█▓░)</option>
+                        <option value="hash">哈希 (#=-.)</option>
+                        <option value="stars">星号 (*+-.)</option>
+                        <option value="blocks">方块 (■□▪)</option>
+                        <option value="dots">点阵 (●◉○)</option>
+                    </select>
+                </div>
+                <div class="setting-
